@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  bbs:
+    build: .
+    ports:
+      - "2323:2323"
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - AI_MODEL=${AI_MODEL:-google/gemma-2-9b-it:free}
+      - BBS_PORT=2323
+    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
