@@ -2,8 +2,8 @@
 
 # Fix for "UnicodeEncodeError: 'ascii' codec can't encode characters"
 # on older servers with generic locales
-export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
+export LANG=C.UTF-8
+export LC_ALL=C.UTF-8
 export PYTHONIOENCODING=utf-8
 
 echo "╔═══════════════════════════════════════════════════════════════════════════╗"
@@ -35,7 +35,7 @@ PYTHONIOENCODING=utf-8 docker-compose up --build -d
 if [ $? -eq 0 ]; then
     echo ""
     echo "✅ AI BBS is running!"
-    echo "   Connect using: telnet localhost 2323"
+    echo "   Connect using: telnet -8 localhost 2323"
     echo "   Connect using: ssh -p 2222 guest@localhost"
     echo ""
     echo "   Logs: docker-compose logs -f"
