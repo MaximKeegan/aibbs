@@ -33,68 +33,99 @@ class BBSHandler(socketserver.BaseRequestHandler):
         except Exception as e:
             print(f"Error sending message: {e}")
     
+    def negotiate_telnet(self):
+        """Send Telnet negotiation codes to force character mode"""
+        if getattr(self.request, 'is_ssh', False):
+            return
+            
+        # IAC WILL ECHO (255 251 1)
+        # IAC WILL SUPPRESS-GO-AHEAD (255 251 3)
+        # IAC WONT LINEMODE (255 252 34)
+        # IAC DO BINARY (255 253 0) - Please send 8-bit data
+        # IAC WILL BINARY (255 251 0) - I will send 8-bit data
+        msg = b'\xff\xfb\x01\xff\xfb\x03\xff\xfc\x22\xff\xfd\x00\xff\xfb\x00'
+        try:
+            self.request.sendall(msg)
+        except Exception as e:
+            print(f"Telnet negotiation error: {e}")
+
     def receive(self, prompt=""):
-        """Receive input from client with UTF-8 decoding"""
+        """Receive input from client with UTF-8 decoding and line editing"""
         try:
             if prompt:
                 self.send(prompt)
 
-            # Check if this is an SSH connection (needs manual echoing and line buffering)
             is_ssh = getattr(self.request, 'is_ssh', False)
-
-            if is_ssh:
-                # SSH Line Editor with Echo
-                buffer = []
-                byte_buffer = b""  # Buffer for incomplete UTF-8 sequences
-                
-                while True:
-                    # Read one byte at a time
-                    try:
-                        chunk = self.request.recv(1)
-                        if not chunk:
-                            break
-                        byte_buffer += chunk
+            buffer = []
+            byte_buffer = b""  # Buffer for incomplete UTF-8 sequences
+            
+            while True:
+                # Read one byte at a time
+                try:
+                    chunk = self.request.recv(1)
+                    if not chunk:
+                        break
+                    
+                    # Handle Telnet Commands (IAC)
+                    if not is_ssh and chunk == b'\xff':
+                        # Read command
+                        cmd = self.request.recv(1)
+                        if not cmd: break
                         
-                        # Try to decode the accumulated bytes
-                        try:
-                            char = byte_buffer.decode('utf-8')
-                            # If successful, clear the byte buffer
-                            byte_buffer = b""
-                        except UnicodeDecodeError:
-                            # Incomplete multibyte sequence, wait for more bytes
-                            if len(byte_buffer) > 4: # Safety valve for garbage
-                                byte_buffer = b""
-                            continue
-                            
-                    except Exception:
-                        break
-
-                    # Handle Enter (CR or LF)
-                    if char == '\r' or char == '\n':
-                        self.send('\r\n')  # Echo newline to user
-                        break
-                    
-                    # Handle Backspace (ASCII 127 or 8)
-                    if char == '\x7f' or char == '\x08':
-                        if buffer:
-                            buffer.pop()
-                            self.send('\x08 \x08')  # Erase character on screen
-                        continue
-                    
-                    # Handle regular characters
-                    if char.isprintable():
-                        buffer.append(char)
-                        self.send(char)  # Echo character back to user
+                        # Handle option negotiation (3-byte commands)
+                        # WILL, WONT, DO, DONT
+                        if cmd in [b'\xfb', b'\xfc', b'\xfd', b'\xfe']:
+                            opt = self.request.recv(1)
+                            continue # Ignore negotiation
+                        
+                        # Handle escaped 255 (double IAC)
+                        if cmd == b'\xff':
+                            pass # allow generic processing as 0xFF
+                        else:
+                            continue # Ignore other commands
                 
-                return "".join(buffer)
+                    if not is_ssh and chunk == b'\xff' and cmd == b'\xff':
+                        # Valid 0xFF data case
+                        byte_buffer += b'\xff'
+                    elif not is_ssh and chunk == b'\xff':
+                        continue # Should have been handled above, but safety
+                    else:
+                        # Normal data
+                        byte_buffer += chunk
+                    
+                    # Try to decode the accumulated bytes
+                    try:
+                        char = byte_buffer.decode('utf-8')
+                        # If successful, clear the byte buffer
+                        byte_buffer = b""
+                    except UnicodeDecodeError:
+                        # Incomplete multibyte sequence, wait for more bytes
+                        if len(byte_buffer) > 4: # Safety valve for garbage
+                            byte_buffer = b""
+                        continue
+                        
+                except Exception:
+                    break
 
-            else:
-                # Standard Telnet/Socket (usually handles line buffering/echoing on client side)
-                data = self.request.recv(1024).decode('utf-8', errors='replace').strip()
-                return data
+                # Handle Enter (CR or LF)
+                if char == '\r' or char == '\n':
+                    self.send('\r\n')  # Echo newline to user
+                    break
+                
+                # Handle Backspace (ASCII 127 or 8)
+                if char == '\x7f' or char == '\x08':
+                    if buffer:
+                        buffer.pop()
+                        self.send('\x08 \x08')  # Erase character on screen
+                    continue
+                
+                # Handle regular characters
+                if char.isprintable():
+                    buffer.append(char)
+                    self.send(char)  # Echo character back to user
+            
+            return "".join(buffer)
 
-        except UnicodeDecodeError:
-            return ""
         except Exception as e:
             print(f"Error receiving data: {e}")
             return ""
@@ -290,6 +321,9 @@ class BBSHandler(socketserver.BaseRequestHandler):
     def handle(self):
         """Main handler for BBS connection"""
         try:
+            # Negotiate Telnet options (force character mode)
+            self.negotiate_telnet()
+            
             # Show welcome screen
             self.show_welcome()
             
