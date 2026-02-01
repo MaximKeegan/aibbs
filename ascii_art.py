@@ -52,16 +52,16 @@ def colorize(text, color):
 LOGO = f"""{Colors.BRIGHT_CYAN}
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
-║      {Colors.BRIGHT_YELLOW}█████╗ {Colors.BRIGHT_MAGENTA}██╗{Colors.BRIGHT_CYAN}    {Colors.BRIGHT_GREEN}██████╗ {Colors.BRIGHT_RED}██████╗ {Colors.BRIGHT_BLUE}███████╗{Colors.BRIGHT_CYAN}                      ║
-║     {Colors.BRIGHT_YELLOW}██╔══██╗{Colors.BRIGHT_MAGENTA}██║{Colors.BRIGHT_CYAN}    {Colors.BRIGHT_GREEN}██╔══██╗{Colors.BRIGHT_RED}██╔══██╗{Colors.BRIGHT_BLUE}██╔════╝{Colors.BRIGHT_CYAN}                      ║
-║     {Colors.BRIGHT_YELLOW}███████║{Colors.BRIGHT_MAGENTA}██║{Colors.BRIGHT_CYAN}    {Colors.BRIGHT_GREEN}██████╔╝{Colors.BRIGHT_RED}██████╔╝{Colors.BRIGHT_BLUE}███████╗{Colors.BRIGHT_CYAN}                      ║
-║     {Colors.BRIGHT_YELLOW}██╔══██║{Colors.BRIGHT_MAGENTA}██║{Colors.BRIGHT_CYAN}    {Colors.BRIGHT_GREEN}██╔══██╗{Colors.BRIGHT_RED}██╔══██╗{Colors.BRIGHT_BLUE}╚════██║{Colors.BRIGHT_CYAN}                      ║
-║     {Colors.BRIGHT_YELLOW}██║  ██║{Colors.BRIGHT_MAGENTA}██║{Colors.BRIGHT_CYAN}    {Colors.BRIGHT_GREEN}██████╔╝{Colors.BRIGHT_RED}██████╔╝{Colors.BRIGHT_BLUE}███████║{Colors.BRIGHT_CYAN}                      ║
-║     {Colors.BRIGHT_YELLOW}╚═╝  ╚═╝{Colors.BRIGHT_MAGENTA}╚═╝{Colors.BRIGHT_CYAN}    {Colors.BRIGHT_GREEN}╚═════╝ {Colors.BRIGHT_RED}╚═════╝ {Colors.BRIGHT_BLUE}╚══════╝{Colors.BRIGHT_CYAN}                      ║
-║                                                                           ║
-║              {Colors.BRIGHT_WHITE}AI-Powered Bulletin Board System - Est. 2026{Colors.BRIGHT_CYAN}              ║
-║                  {Colors.BRIGHT_YELLOW}« Where the 90s meet the future »{Colors.BRIGHT_CYAN}                   ║
-║                   {Colors.BRIGHT_BLACK}Powered by OpenRouter (Free Tier){Colors.BRIGHT_CYAN}                   ║
+║                 {Colors.BRIGHT_YELLOW}█████╗ {Colors.BRIGHT_MAGENTA}██╗{Colors.BRIGHT_CYAN}    {Colors.BRIGHT_GREEN}██████╗ {Colors.BRIGHT_RED}██████╗ {Colors.BRIGHT_BLUE}███████╗{Colors.BRIGHT_CYAN}                    ║
+║                {Colors.BRIGHT_YELLOW}██╔══██╗{Colors.BRIGHT_MAGENTA}██║{Colors.BRIGHT_CYAN}    {Colors.BRIGHT_GREEN}██╔══██╗{Colors.BRIGHT_RED}██╔══██╗{Colors.BRIGHT_BLUE}██╔════╝{Colors.BRIGHT_CYAN}                    ║
+║                {Colors.BRIGHT_YELLOW}███████║{Colors.BRIGHT_MAGENTA}██║{Colors.BRIGHT_CYAN}    {Colors.BRIGHT_GREEN}██████╔╝{Colors.BRIGHT_RED}██████╔╝{Colors.BRIGHT_BLUE}███████╗{Colors.BRIGHT_CYAN}                    ║
+║                {Colors.BRIGHT_YELLOW}██╔══██║{Colors.BRIGHT_MAGENTA}██║{Colors.BRIGHT_CYAN}    {Colors.BRIGHT_GREEN}██╔══██╗{Colors.BRIGHT_RED}██╔══██╗{Colors.BRIGHT_BLUE}╚════██║{Colors.BRIGHT_CYAN}                    ║
+║                {Colors.BRIGHT_YELLOW}██║  ██║{Colors.BRIGHT_MAGENTA}██║{Colors.BRIGHT_CYAN}    {Colors.BRIGHT_GREEN}██████╔╝{Colors.BRIGHT_RED}██████╔╝{Colors.BRIGHT_BLUE}███████║{Colors.BRIGHT_CYAN}                    ║
+║                {Colors.BRIGHT_YELLOW}╚═╝  ╚═╝{Colors.BRIGHT_MAGENTA}╚═╝{Colors.BRIGHT_CYAN}    {Colors.BRIGHT_GREEN}╚═════╝ {Colors.BRIGHT_RED}╚═════╝ {Colors.BRIGHT_BLUE}╚══════╝{Colors.BRIGHT_CYAN}                    ║
+║                                                                           ║         
+║              {Colors.BRIGHT_WHITE}AI-Powered Bulletin Board System - Est. 2026{Colors.BRIGHT_CYAN}                 ║
+║                  {Colors.BRIGHT_YELLOW}« Where the 90s meet the future »{Colors.BRIGHT_CYAN}                        ║
+║                   {Colors.BRIGHT_BLACK}Powered by OpenRouter (Free Tier){Colors.BRIGHT_CYAN}                       ║
 ║                                                                           ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
 {Colors.RESET}"""
@@ -69,15 +69,15 @@ LOGO = f"""{Colors.BRIGHT_CYAN}
 
 MAIN_MENU = f"""{Colors.BRIGHT_CYAN}
 ╔═══════════════════════════════════════════════════════════════════════════╗
-║                            {Colors.BRIGHT_YELLOW}« MAIN MENU »{Colors.BRIGHT_CYAN}                               ║
+║                            {Colors.BRIGHT_YELLOW}« MAIN MENU »{Colors.BRIGHT_CYAN}                                  ║
 ╠═══════════════════════════════════════════════════════════════════════════╣
 ║                                                                           ║
-║   {Colors.BRIGHT_GREEN}[1]{Colors.WHITE} Chat with AI                 {Colors.BRIGHT_BLACK}// Talk to the future{Colors.BRIGHT_CYAN}      ║
-║   {Colors.BRIGHT_GREEN}[2]{Colors.WHITE} View Message Boards          {Colors.BRIGHT_BLACK}// Classic BBS vibes{Colors.BRIGHT_CYAN}      ║
-║   {Colors.BRIGHT_GREEN}[3]{Colors.WHITE} ASCII Art Gallery            {Colors.BRIGHT_BLACK}// Retro masterpieces{Colors.BRIGHT_CYAN}     ║
-║   {Colors.BRIGHT_GREEN}[4]{Colors.WHITE} System Information           {Colors.BRIGHT_BLACK}// Stats & info{Colors.BRIGHT_CYAN}          ║
-║   {Colors.BRIGHT_GREEN}[5]{Colors.WHITE} Easter Eggs                  {Colors.BRIGHT_BLACK}// Find the secrets!{Colors.BRIGHT_CYAN}      ║
-║   {Colors.BRIGHT_RED}[Q]{Colors.WHITE} Quit / Logoff                 {Colors.BRIGHT_BLACK}// See you later!{Colors.BRIGHT_CYAN}        ║
+║   {Colors.BRIGHT_GREEN}[1]{Colors.WHITE} Chat with AI                 {Colors.BRIGHT_BLACK}// Talk to the future{Colors.BRIGHT_CYAN}                  ║
+║   {Colors.BRIGHT_GREEN}[2]{Colors.WHITE} View Message Boards          {Colors.BRIGHT_BLACK}// Classic BBS vibes{Colors.BRIGHT_CYAN}                   ║
+║   {Colors.BRIGHT_GREEN}[3]{Colors.WHITE} ASCII Art Gallery            {Colors.BRIGHT_BLACK}// Retro masterpieces{Colors.BRIGHT_CYAN}                  ║
+║   {Colors.BRIGHT_GREEN}[4]{Colors.WHITE} System Information           {Colors.BRIGHT_BLACK}// Stats & info{Colors.BRIGHT_CYAN}                        ║
+║   {Colors.BRIGHT_GREEN}[5]{Colors.WHITE} Easter Eggs                  {Colors.BRIGHT_BLACK}// Find the secrets!{Colors.BRIGHT_CYAN}                   ║
+║   {Colors.BRIGHT_RED}[Q]{Colors.WHITE} Quit / Logoff                {Colors.BRIGHT_BLACK}// See you later!{Colors.BRIGHT_CYAN}                      ║
 ║                                                                           ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
 {Colors.RESET}"""
@@ -85,10 +85,10 @@ MAIN_MENU = f"""{Colors.BRIGHT_CYAN}
 
 CHAT_HEADER = f"""{Colors.BRIGHT_MAGENTA}
 ╔═══════════════════════════════════════════════════════════════════════════╗
-║                         {Colors.BRIGHT_YELLOW}« AI CHAT ROOM »{Colors.BRIGHT_MAGENTA}                              ║
+║                         {Colors.BRIGHT_YELLOW}« AI CHAT ROOM »{Colors.BRIGHT_MAGENTA}                                  ║
 ╠═══════════════════════════════════════════════════════════════════════════╣
-║  {Colors.WHITE}You are now connected to AI!{Colors.BRIGHT_MAGENTA}                                         ║
-║  {Colors.BRIGHT_BLACK}Type your message and press ENTER. Type '/exit' to return to menu.{Colors.BRIGHT_MAGENTA}  ║
+║  {Colors.WHITE}You are now connected to AI!{Colors.BRIGHT_MAGENTA}                                             ║   
+║  {Colors.BRIGHT_BLACK}Type your message and press ENTER. Type '/exit' to return to menu.{Colors.BRIGHT_MAGENTA}       ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
 {Colors.RESET}"""
 
@@ -121,13 +121,13 @@ ROBOT_ART = f"""{Colors.BRIGHT_CYAN}
 GOODBYE = f"""{Colors.BRIGHT_YELLOW}
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
-║                     {Colors.BRIGHT_MAGENTA}Thanks for visiting AI BBS!{Colors.BRIGHT_YELLOW}                       ║
+║                     {Colors.BRIGHT_MAGENTA}Thanks for visiting AI BBS!{Colors.BRIGHT_YELLOW}                           ║
 ║                                                                           ║
-║                    {Colors.BRIGHT_CYAN}╔═══════════════════════╗{Colors.BRIGHT_YELLOW}                           ║
-║                    {Colors.BRIGHT_CYAN}║  {Colors.BRIGHT_WHITE}See you online!  {Colors.BRIGHT_CYAN}║{Colors.BRIGHT_YELLOW}                           ║
-║                    {Colors.BRIGHT_CYAN}╚═══════════════════════╝{Colors.BRIGHT_YELLOW}                           ║
+║                      {Colors.BRIGHT_CYAN}╔═══════════════════════╗{Colors.BRIGHT_YELLOW}                            ║
+║                      {Colors.BRIGHT_CYAN}║     {Colors.BRIGHT_WHITE}See you online!   {Colors.BRIGHT_CYAN}║{Colors.BRIGHT_YELLOW}                            ║
+║                      {Colors.BRIGHT_CYAN}╚═══════════════════════╝{Colors.BRIGHT_YELLOW}                            ║
 ║                                                                           ║
-║              {Colors.BRIGHT_GREEN}Connection will close in 3 seconds...{Colors.BRIGHT_YELLOW}                    ║
+║                 {Colors.BRIGHT_GREEN}Connection will close in 3 seconds...{Colors.BRIGHT_YELLOW}                     ║
 ║                                                                           ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
 {Colors.RESET}"""
@@ -149,9 +149,9 @@ LOADING_FRAMES = [
 
 EASTER_EGG_MATRIX = f"""{Colors.BRIGHT_GREEN}
  ╔═══════════════════════════════════════════════════════════════╗
- ║  01001000 01100101 01101100 01101100 01101111 00100001      ║
- ║  {Colors.BRIGHT_WHITE}You found the Matrix Easter Egg!{Colors.BRIGHT_GREEN}                         ║
- ║  {Colors.BRIGHT_CYAN}« There is no spoon »{Colors.BRIGHT_GREEN}                                     ║
+ ║  01001000 01100101 01101100 01101100 01101111 00100001        ║
+ ║  {Colors.BRIGHT_WHITE}You found the Matrix Easter Egg!{Colors.BRIGHT_GREEN}                             ║
+ ║  {Colors.BRIGHT_CYAN}« There is no spoon »{Colors.BRIGHT_GREEN}                                        ║
  ╚═══════════════════════════════════════════════════════════════╝
 {Colors.RESET}"""
 

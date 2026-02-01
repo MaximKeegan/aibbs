@@ -36,6 +36,7 @@ if [ $? -eq 0 ]; then
     echo ""
     echo "✅ AI BBS is running!"
     echo "   Connect using: telnet localhost 2323"
+    echo "   Connect using: ssh -p 2222 guest@localhost"
     echo ""
     echo "   Logs: docker-compose logs -f"
     echo "   Stop: docker-compose down"

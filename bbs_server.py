@@ -1,7 +1,9 @@
 """
 Main BBS Server - Telnet-based Bulletin Board System
 """
+import socket
 import socketserver
+import paramiko
 import threading
 import time
 import os
@@ -21,6 +23,11 @@ class BBSHandler(socketserver.BaseRequestHandler):
     def send(self, message):
         """Send message to client with UTF-8 encoding"""
         try:
+            # Ensure proper line endings (CRLF) for both Telnet and SSH/PTY
+            # This fixes the "staircase effect" where ASCII art falls apart
+            if isinstance(message, str):
+                message = message.replace('\r\n', '\n').replace('\n', '\r\n')
+            
             # Ensure proper UTF-8 encoding for Cyrillic and other Unicode characters
             self.request.sendall(message.encode('utf-8', errors='replace'))
         except Exception as e:
@@ -31,17 +38,63 @@ class BBSHandler(socketserver.BaseRequestHandler):
         try:
             if prompt:
                 self.send(prompt)
-            # Decode with UTF-8 and handle errors gracefully
-            data = self.request.recv(1024).decode('utf-8', errors='replace').strip()
-            return data
-        except UnicodeDecodeError:
-            # Fallback for encoding issues
-            try:
-                data = self.request.recv(1024).decode('cp1251', errors='replace').strip()
+
+            # Check if this is an SSH connection (needs manual echoing and line buffering)
+            is_ssh = getattr(self.request, 'is_ssh', False)
+
+            if is_ssh:
+                # SSH Line Editor with Echo
+                buffer = []
+                byte_buffer = b""  # Buffer for incomplete UTF-8 sequences
+                
+                while True:
+                    # Read one byte at a time
+                    try:
+                        chunk = self.request.recv(1)
+                        if not chunk:
+                            break
+                        byte_buffer += chunk
+                        
+                        # Try to decode the accumulated bytes
+                        try:
+                            char = byte_buffer.decode('utf-8')
+                            # If successful, clear the byte buffer
+                            byte_buffer = b""
+                        except UnicodeDecodeError:
+                            # Incomplete multibyte sequence, wait for more bytes
+                            if len(byte_buffer) > 4: # Safety valve for garbage
+                                byte_buffer = b""
+                            continue
+                            
+                    except Exception:
+                        break
+
+                    # Handle Enter (CR or LF)
+                    if char == '\r' or char == '\n':
+                        self.send('\r\n')  # Echo newline to user
+                        break
+                    
+                    # Handle Backspace (ASCII 127 or 8)
+                    if char == '\x7f' or char == '\x08':
+                        if buffer:
+                            buffer.pop()
+                            self.send('\x08 \x08')  # Erase character on screen
+                        continue
+                    
+                    # Handle regular characters
+                    if char.isprintable():
+                        buffer.append(char)
+                        self.send(char)  # Echo character back to user
+                
+                return "".join(buffer)
+
+            else:
+                # Standard Telnet/Socket (usually handles line buffering/echoing on client side)
+                data = self.request.recv(1024).decode('utf-8', errors='replace').strip()
                 return data
-            except Exception as e:
-                print(f"Error receiving data: {e}")
-                return ""
+
+        except UnicodeDecodeError:
+            return ""
         except Exception as e:
             print(f"Error receiving data: {e}")
             return ""
@@ -65,7 +118,7 @@ class BBSHandler(socketserver.BaseRequestHandler):
         self.send(clear_screen())
         self.send(LOGO)
         self.send(f"\n{Colors.BRIGHT_CYAN}╔═══════════════════════════════════════════════════════════════════════════╗{Colors.RESET}\n")
-        self.send(f"{Colors.BRIGHT_CYAN}║{Colors.RESET}  {Colors.BRIGHT_WHITE}Welcome to AI BBS!{Colors.RESET}                                                   {Colors.BRIGHT_CYAN}║{Colors.RESET}\n")
+        self.send(f"{Colors.BRIGHT_CYAN}║{Colors.RESET}  {Colors.BRIGHT_WHITE}Welcome to AI BBS!{Colors.RESET}                                                       {Colors.BRIGHT_CYAN}║{Colors.RESET}\n")
         self.send(f"{Colors.BRIGHT_CYAN}╚═══════════════════════════════════════════════════════════════════════════╝{Colors.RESET}\n\n")
         
         username = self.receive(f"{Colors.BRIGHT_YELLOW}Enter your handle: {Colors.RESET}")
@@ -144,7 +197,7 @@ class BBSHandler(socketserver.BaseRequestHandler):
         """Display message boards (placeholder)"""
         self.send(clear_screen())
         self.send(f"{Colors.BRIGHT_CYAN}╔═══════════════════════════════════════════════════════════════════════════╗{Colors.RESET}\n")
-        self.send(f"{Colors.BRIGHT_CYAN}║{Colors.RESET}                        {Colors.BRIGHT_YELLOW}« MESSAGE BOARDS »{Colors.RESET}                              {Colors.BRIGHT_CYAN}║{Colors.RESET}\n")
+        self.send(f"{Colors.BRIGHT_CYAN}║{Colors.RESET}                        {Colors.BRIGHT_YELLOW}« MESSAGE BOARDS »{Colors.RESET}                                 {Colors.BRIGHT_CYAN}║{Colors.RESET}\n")
         self.send(f"{Colors.BRIGHT_CYAN}╚═══════════════════════════════════════════════════════════════════════════╝{Colors.RESET}\n\n")
         
         boards = [
@@ -166,7 +219,7 @@ class BBSHandler(socketserver.BaseRequestHandler):
         """Display ASCII art gallery"""
         self.send(clear_screen())
         self.send(f"{Colors.BRIGHT_CYAN}╔═══════════════════════════════════════════════════════════════════════════╗{Colors.RESET}\n")
-        self.send(f"{Colors.BRIGHT_CYAN}║{Colors.RESET}                      {Colors.BRIGHT_YELLOW}« ASCII ART GALLERY »{Colors.RESET}                            {Colors.BRIGHT_CYAN}║{Colors.RESET}\n")
+        self.send(f"{Colors.BRIGHT_CYAN}║{Colors.RESET}                      {Colors.BRIGHT_YELLOW}« ASCII ART GALLERY »{Colors.RESET}                                {Colors.BRIGHT_CYAN}║{Colors.RESET}\n")
         self.send(f"{Colors.BRIGHT_CYAN}╚═══════════════════════════════════════════════════════════════════════════╝{Colors.RESET}\n\n")
         
         arts = [COMPUTER_ART, ROBOT_ART]
@@ -182,7 +235,7 @@ class BBSHandler(socketserver.BaseRequestHandler):
         """Display system information"""
         self.send(clear_screen())
         self.send(f"{Colors.BRIGHT_CYAN}╔═══════════════════════════════════════════════════════════════════════════╗{Colors.RESET}\n")
-        self.send(f"{Colors.BRIGHT_CYAN}║{Colors.RESET}                     {Colors.BRIGHT_YELLOW}« SYSTEM INFORMATION »{Colors.RESET}                           {Colors.BRIGHT_CYAN}║{Colors.RESET}\n")
+        self.send(f"{Colors.BRIGHT_CYAN}║{Colors.RESET}                     {Colors.BRIGHT_YELLOW}« SYSTEM INFORMATION »{Colors.RESET}                                {Colors.BRIGHT_CYAN}║{Colors.RESET}\n")
         self.send(f"{Colors.BRIGHT_CYAN}╚═══════════════════════════════════════════════════════════════════════════╝{Colors.RESET}\n\n")
         
         # Get AI model info if available
@@ -212,7 +265,7 @@ class BBSHandler(socketserver.BaseRequestHandler):
         """Display easter eggs menu"""
         self.send(clear_screen())
         self.send(f"{Colors.BRIGHT_CYAN}╔═══════════════════════════════════════════════════════════════════════════╗{Colors.RESET}\n")
-        self.send(f"{Colors.BRIGHT_CYAN}║{Colors.RESET}                        {Colors.BRIGHT_YELLOW}« EASTER EGGS »{Colors.RESET}                                {Colors.BRIGHT_CYAN}║{Colors.RESET}\n")
+        self.send(f"{Colors.BRIGHT_CYAN}║{Colors.RESET}                        {Colors.BRIGHT_YELLOW}« EASTER EGGS »{Colors.RESET}                                    {Colors.BRIGHT_CYAN}║{Colors.RESET}\n")
         self.send(f"{Colors.BRIGHT_CYAN}╚═══════════════════════════════════════════════════════════════════════════╝{Colors.RESET}\n\n")
         
         self.send(EASTER_EGG_MATRIX)
@@ -277,10 +330,122 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     allow_reuse_address = True
 
 
+class ParamikoSocketAdapter:
+    """Adapts a Paramiko channel to look like a socket for BBSHandler"""
+    def __init__(self, channel):
+        self.channel = channel
+        self.is_ssh = True
+
+    def sendall(self, data):
+        sent = 0
+        while sent < len(data):
+            n = self.channel.send(data[sent:])
+            if n == 0:
+                raise RuntimeError("Channel closed")
+            sent += n
+
+    def recv(self, n):
+        return self.channel.recv(n)
+
+    def close(self):
+        self.channel.close()
+
+
+class BBS_SSHInterface(paramiko.ServerInterface):
+    """Handle SSH authentication and channel requests"""
+    def check_channel_request(self, kind, chanid):
+        if kind == 'session':
+            return paramiko.OPEN_SUCCEEDED
+        return paramiko.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
+
+    def check_auth_password(self, username, password):
+        return paramiko.AUTH_SUCCESSFUL
+
+    def check_auth_none(self, username):
+        return paramiko.AUTH_SUCCESSFUL
+    
+    def get_allowed_auths(self, username):
+        return 'none,password'
+    
+    def check_channel_shell_request(self, channel):
+        return True
+
+    def check_channel_pty_request(self, channel, term, width, height, pixelwidth, pixelheight, modes):
+        return True
+
+
+def handle_ssh_connection(client_sock, host_key):
+    """Handle a single SSH connection"""
+    transport = paramiko.Transport(client_sock)
+    try:
+        transport.add_server_key(host_key)
+        server = BBS_SSHInterface()
+        try:
+            transport.start_server(server=server)
+        except paramiko.SSHException:
+            return
+
+        # Wait for a channel
+        channel = transport.accept(20)
+        if channel is None:
+            return
+        
+        # Simple wait for the client to be ready (shell/pty negotiation handled by callbacks)
+        # BBSHandler expects a synchronous socket-like object
+        adapter = ParamikoSocketAdapter(channel)
+        client_addr = client_sock.getpeername()
+        
+        try:
+            # BBSHandler handles the entire session
+            BBSHandler(adapter, client_addr, None)
+        except Exception as e:
+            print(f"SSH Handler Error: {e}")
+        finally:
+            adapter.close()
+            
+    except Exception as e:
+        print(f"SSH Transport Error: {e}")
+    finally:
+        transport.close()
+        client_sock.close()
+
+
+def run_ssh_server(port, host_key_path='data/ssh_host_key'):
+    """Main loop for SSH server"""
+    # Load or generate host key
+    # Ensure data directory exists
+    os.makedirs(os.path.dirname(host_key_path), exist_ok=True)
+    
+    if not os.path.exists(host_key_path):
+        print(f"Generating SSH host key at {host_key_path}...")
+        key = paramiko.RSAKey.generate(2048)
+        key.write_private_key_file(host_key_path)
+    
+    host_key = paramiko.RSAKey(filename=host_key_path)
+    
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind(('0.0.0.0', port))
+    sock.listen(100)
+    
+    print(f"SSH Server listening on 0.0.0.0:{port}")
+    
+    while True:
+        try:
+            client, addr = sock.accept()
+            t = threading.Thread(target=handle_ssh_connection, args=(client, host_key))
+            t.daemon = True
+            t.start()
+        except Exception as e:
+            print(f"Error accepting SSH connection: {e}")
+
+
 def main():
     """Main server function"""
     HOST = '0.0.0.0'
+    HOST = '0.0.0.0'
     PORT = int(os.getenv('BBS_PORT', 2323))
+    SSH_PORT = int(os.getenv('SSH_PORT', 2222))
     
     print(f"""
 ╔═══════════════════════════════════════════════════════════════════════════╗
@@ -291,7 +456,13 @@ def main():
     
     print(f"Server listening on {HOST}:{PORT}")
     print(f"Connect via telnet: telnet localhost {PORT}")
+    print(f"Connect via ssh:    ssh -p {SSH_PORT} guest@localhost")
     print(f"\nPress Ctrl+C to stop the server\n")
+    
+    # Start SSH Server in background thread
+    ssh_thread = threading.Thread(target=run_ssh_server, args=(SSH_PORT,))
+    ssh_thread.daemon = True
+    ssh_thread.start()
     
     server = ThreadedTCPServer((HOST, PORT), BBSHandler)
     

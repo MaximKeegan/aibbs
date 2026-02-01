@@ -18,7 +18,9 @@ COPY . .
 RUN mkdir -p /app/logs /app/data
 
 # Expose telnet port
+# Expose telnet port and ssh port
 EXPOSE 2323
+EXPOSE 2222
 
 # Run the BBS server
 CMD ["python", "bbs_server.py"]
